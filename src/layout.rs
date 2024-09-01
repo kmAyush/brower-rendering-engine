@@ -97,4 +97,90 @@ impl LayoutBox {
         }
     }
     
+    fn layout_block(&mut self, containing_block:Dimensions) {
+        // Child width is dependent of parent width, but parent height depends on child
+
+        // Calculate parent element width 
+        self.calculate_block_width(containing_block);
+
+        self.calculate_block_position(containing_block);
+        
+        // Add children block dimension recursively to containing_block
+        self.layout_block_children();
+        
+        self.calculate_block_height();
+    }
+
+    fn calculate_block_width(&mut self, containing_block:Dimensions) {
+       let style = self.get_style_node();
+        
+        // initialize width with "auto"
+        let auto=Keywords("auto".to_string());
+        let mut width = style.value("width").unwrap_or(auto.clone());
+        
+        // initialize margin, padding border = 0
+        let zero = Length(0.0, Px);
+        
+        // set margin_left to margin-left's value otherwise margin's value 
+        // otherwise zero
+        let mut margin_left = style.lookup("margin-left", "margin", &zero);
+        let mut margin_right = style.lookup("margin-right","margin", &zero);
+       	let border_left = style.lookup("border-left-width", "border-width", &zero);
+        let border_right = style.lookup("border-right-width", "border-width", &zero);
+        let padding_left = style.lookup("padding-left", "padding", &zero);
+        let padding_right = style.lookup("padding-right", "padding", &zero);
+
+        let total = sum([&margin_left, &margin_right, &border_left, &border_right,
+                    &padding_left, &padding_right, &width].iter().map(|v| v.to_px()));
+        
+        // if width is not auto and the total is wider than the container, treat auto margins as 0.
+        if width != auto && total > containing_block.content.width {
+            if margin_left == auto {margin_left = Length(0.0, Px);
+            if margin_right == auto {margin_right = Length(0.0, Px);
+        }
+        let underflow = containing_block.content.width - total;
+        
+        match(width == auto, margin_left == auto, margin_right == auto) {
+            (false, false, false) => { margin_right = Length(margin_rigth.to_px() + underflow, Px);}
+            (false, false, true) => { margin_right = Length(underflow, Px); }
+            (false, true, false) => {margin_left = Length(underflow, Px);}
+
+            // if width is auto, all auto becomes 0.0 px
+            (true, _, _) => {
+                if margin_left == auto {margin_left=Length(0.0, Px);}
+                if margin_right == auto {margin_right=Length(0.0, Px);}
+
+                if underflow >= 0.0 {
+                    width = Length(underflow, Px);
+                } else {
+                    width = Length(0.0, Px);
+                }
+            }
+            (false, true, true) => {
+                margin_left == Length(underflow/2.0, Px);
+                margin_right == Length(underflow/2.0, Px);
+            }
+        }
+        fn calculate_block_position(&mut self, containing_block: Dimensions) {
+            let style = self.get_style_node();
+            let d = &mut self.dimensions;
+
+            let zero = Length(0.0, Px);
+
+            d.margin.top = style.lookup("margin-top", "margin", &zero).to_px();
+            d.margin.bottom = style.lookup("margin-bottom", "margin", &zero).to_px();
+
+            d.border.top = style.lookup("border-top-width", "border-width", &zero).to_px();
+            d.border.bottom = style.lookup("border-bottom-width", "border-width", &zero).to_px();
+
+            d.padding.top = style.lookup("padding-top", "padding", &zero).to_px();
+            d.padding.bottom = style.lookup("padding-bottom", "padding", &zero).to_px();
+            
+            // total width size of box
+            d.content.x = containing_block.content.x + d.margin.left + d.border.left + d.padding.left;
+            
+            // total vertical size of box
+            d.content.y = containing_block.content.height + containing_block.content.y + d.margin.top + d.border.top + d.padding.top;
+        }
+    }
 }
