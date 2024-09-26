@@ -1,6 +1,6 @@
 # HTML and CSS Rendering Engine
-<p><strong>To learn about how browser renders webpage code by implementing. To understand, is it required to have two extra languages for rendering, can one build webpage in one single language without transpiling to HTML?</strong></p><p>
-A toy implementation of browser rendering engine to understand the execution of HTML and CSS code as well as to learn about Rust data structure by practical implementation of HashMaps, Nodes and Trees.</p>
+<p><strong>Is it necessary to have multiple languages code for rendering a webpage on a browser, can one single language be used to build a webpage without transpiling to HTML?</strong></p><p>
+A toy implementation of a browser rendering engine to understand the rendering of HTML and CSS code as well as to learn about Rust data structure by practical implementation of HashMaps, Nodes, and Trees.</p>
 
 # Architecture
 
@@ -168,9 +168,10 @@ StyledNode (Element: html)
 # Limitations
 1. Does not handle the case where an inline box contains a block-level child.
 2. Does not handle ignorance of wrong code.
-3. Nested CSS block is not support.
-4. Absolute and fixed positioning not supported.
+3. Nested CSS block is not supported.
+4. Absolute and fixed positioning are not supported.
 
 
 # Reference
-1. https://web.dev/articles/howbrowserswork
+1. Article on building a browser rendering engine, https://limpet.net/mbrubeck/2014/08/08/toy-layout-engine-1.html
+2. Article on how a browser works, https://web.dev/articles/howbrowserswork
