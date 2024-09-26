@@ -1,7 +1,7 @@
 use std::collections::{HashMap, HashSet};
 
 // DOM tree
-struct Node {
+pub(crate) struct Node {
     children:Vec<Node>,
     node_type: NodeType,
 }
@@ -22,7 +22,7 @@ struct ElementData {
 type AttrMap = HashMap<String, String>;
 
 // Store to Node when element is text
-fn text(data:String) -> Node {
+pub(crate) fn text(data:String) -> Node {
     Node {children: Vec::new(), node_type: NodeType::Text(data)}
 }
 
@@ -32,5 +32,17 @@ pub fn element(tag_name: String, attrs: AttrMap, children: Vec<Node>) -> Node {
     Node {
         children, 
         node_type: NodeType :: Element(ElementData{ tag_name, attrs })
+    }
+}
+
+impl ElementData{
+    pub fn id(&self) -> Option<&String> {
+        self.attributes.get("id")
+    }
+    pub fn classes(&self) -> HashSet<&str> { // Class element can contain multiple class
+        match self.attributes.get("class"){
+            Some(classlist) => classlist.split(' ').collect(),
+            None => HashSet::new()
+        }
     }
 }

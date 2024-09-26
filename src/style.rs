@@ -1,28 +1,31 @@
-type PropertyMap = HashMap<String, Value>;
+use::crate::dom::{Node, Nodetype, ElementData};
+use::crate::css::{Stylesheet, Rule, Selector, SimpleSelector, Value, Specificity};
+use std::collections::HashMap;
 
-struct StyledNode<'a> {
+pub type PropertyMap = HashMap<String, Value>;
+
+#[derive(Debug)]
+pub struct StyledNode<'a> {
     node: &'a Node,
     specified_values: PropertyMap,
     children: Vec<StyledNode<'a>>,
 }
-
+#[derive(Debug)]
+pub struct Display {
+    Inline, Block, None
+}
+impl <'a> StyledNode<'a> {
+    pub fn value(&self, name: &str) -> Option<Value> {
+        self.specified_values.get(name).mapclone())
+    }
+}
 fn matches(element:&ElementData, selector:&Selector) -> bool {
     match selector {
-        Simple(s) => matches_simple_selector(element, s);
+        Simple(s) => matches_simple_selector(element, s),
     }
 }
 
-impl ElementData{
-    pub fn id(&self) -> Option<&String> {
-        self.attributes.get("id")
-    }
-    pub fn classes(&self) -> HashSet<&str> { // Class element can contain multiple class
-        match self.attributes.get("class"){
-            Some(classlist) => classlist.split(' ').collect(),
-            None => HashSet::new()
-        }
-    }
-}
+
 fn matches_simple_selector(element: &ElementData, selector:&SimpleSelector) -> bool {
     // Check for tag
     if selector.tag_name.iter().any(|name| element.tag_name != *name) {
@@ -43,22 +46,22 @@ fn matches_simple_selector(element: &ElementData, selector:&SimpleSelector) -> b
 type MatchedRule<'a> = (Specificity, &'a Rule);
 
 // If 'rule' matches 'element' return a 'MatchedRule' 
-fn match_rule<'a>(elem: &ElementData, rule:&'a Rule) -> Option<MatchedRule<'a>>{
+fn match_rule<'a>(element: &ElementData, rule:&'a Rule) -> Option<MatchedRule<'a>>{
     // find highest specificity matching selector
     rule.selector.iter()
         .find(|selector| matches(element, selector))
         .map(|selector| (selector.specificity(), rule))
 }
 // find all css rules that match the given element
-fn matching_rules<'a>(elem:&ElementData, stylesheet: &'a Stylesheet) -> Vec<MatchedRule<'a>> {
+fn matching_rules<'a>(element:&ElementData, stylesheet: &'a Stylesheet) -> Vec<MatchedRule<'a>> {
     stylesheet.rules.iter().filter_map(|rule| match_rule(element, rule)).collect()
 }
 // apply styles to a single element
-fn specified_values(element:) -> PropertyMap {
+fn specified_values(element:&ElementData) -> PropertyMap {
     let mut values = HashMap::new();
     let mut rules = matching_rules(element, stylesheet);
 
-    rules.sort_by(| &(a,_), &(b,_) a.cmp(&b));
+    rules.sort_by(|&(a,_), &(b,_)| a.cmp(&b));
     for(_, rule) in rules {
         for declaration in &rule.declarations {
             values.insert(declaration.name.clone(), declaration.value.clone());

@@ -1,5 +1,8 @@
-struct Dimensions {
-    content:Rect,
+use css::Value;
+use crate::css::Value::Keyword;
+
+pub(crate) struct Dimensions {
+    pub(crate) content:Rect,
 
     padding:Edge_sizes,
     border:Edge_sizes,
@@ -9,8 +12,8 @@ struct Dimensions {
 struct Rect {
     x:f32,
     y:f32,
-    width:f32,
-    height:f32,
+    pub(crate) width:f32,
+    pub(crate) height:f32,
 }
 
 struct Edge_sizes {
@@ -83,7 +86,7 @@ impl LayoutBox {
     // Add a new inline child to LayoutBox
     fn get_inline_container(&mut self) -> &mut LayoutBox {
         match self.box_type {
-            InlineNode(_) | AnonymousBlock => self,
+            InlineNode(_) | crate::layout::BoxType::AnonymousBlock => self,
             BlockNode(_) => {
                 // If we have just generated an anonymous block box,
                 // keep using it.

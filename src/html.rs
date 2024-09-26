@@ -1,3 +1,6 @@
+use crate::dom;
+use std::collections::HashMap;
+
 struct Parser { // Make an index of html code snippet.
     pos:usize,
     input:String,
